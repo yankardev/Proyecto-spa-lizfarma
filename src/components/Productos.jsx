@@ -1,31 +1,91 @@
-// src/components/Productos.jsx
-import { productos } from "../data/productos";
+import { useState } from "react";
+import { ventanaproductos as DATA } from "../data/ventanaproductos";
+import "../styles/productos.css";
+
+
+function stringOrEmpty(val) { return (typeof val === "string") ? val : ""; }
+function numberOrZero(val) { return (typeof val === "number" && !Number.isNaN(val)) ? val : 0; }
+function srcOrPlaceholder(val) {
+  return (typeof val === "string" && val.length > 0)
+    ? val
+    : "https://via.placeholder.com/400x300?text=Producto";
+}
+
+function ProductoTarjeta({ p }) {
+  const stock = numberOrZero(p.stock);
+  const disponible = stock > 0;
+
+  const src = srcOrPlaceholder(p.imagen);
+  const precio = numberOrZero(p.precio);
+  const nombre = stringOrEmpty(p.nombre);
+  const categoria = stringOrEmpty(p.categoria);
+
+  const badgeClass = disponible ? "prodBadge prodBadgeOk" : "prodBadge prodBadgeBad";
+
+  return (
+    <article className="producto">
+      <div className="productoImagen">
+        <img src={src} alt={nombre} className="imagenProducto" loading="lazy" />
+      </div>
+      <div className="cuerpoProducto">
+        <h3 className="tituloProducto">{nombre}</h3>
+        <p className="parrafoProducto">{categoria}</p>
+        <div className="precioFila">
+          <span className="precioProducto">S/. {precio.toFixed(2)}</span>
+          <span className={badgeClass}>
+            {disponible ? "Stock: " + stock : "Sin stock"}
+          </span>
+        </div>
+      </div>
+    </article>
+  )
+}
 
 export default function Productos() {
+  const [q, setQ] = useState("");
+  const qLower = q.toLowerCase();
+
+  const lista = DATA.filter((p) => {
+    const nombre = stringOrEmpty(p.nombre).toLowerCase();
+    const categoria = stringOrEmpty(p.categoria).toLowerCase();
+
+    return nombre.includes(qLower) || categoria.includes(qLower);
+  });
+
   return (
-<section className="p-5 text-black">
-  <h2 className="text-4xl font-bold text-center mb-8 text-white">Nuestros Productos</h2>
-  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-    {productos.map((producto) => (
-      <div 
-        key={producto.id} 
-        className="bg-gray-100 shadow-lg rounded-xl p-4 flex flex-col items-center transition hover:shadow-xl hover:scale-110 duration-500"
-      >
-        {/* Contenedor de la imagen con fondo */}
-        <div className="w-full h-full bg-teal-500 overflow-hidden flex items-center justify-center rounded-2xl">
-          <img src={producto.imagen} alt={producto.nombre} 
-            className="w-40 h-full transition-transform duration-500 hover:scale-110 p-4 rounded-3xl"/>
+    <section className="productosPagina">
+      <div className="productosHero">
+        <div className="productosHeroInner">
+          <h1 className="productosTitulo">Productos</h1>
+          <p className="productosSubtitulo">Catálogo de Productos LIZFARMA</p>
         </div>
-        {/* Nombre y precio */}
-        <h3 className="text-lg font-semibold mt-3">{producto.nombre}</h3>
-        <p className="text-teal-600 font-bold">S/ {producto.precio.toFixed(2)}</p>
-        {/* Botón */}
-        <button className="mt-3 px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-green-700 hover:cursor-pointer transition">
-          Agregar al carrito
-        </button>
       </div>
-    ))}
-  </div>
-</section>
+
+      <div className="productosConteiner">
+        <div className="productosFiltros">
+          <div className="campoFiltro">
+            <label htmlFor="buscador" className="etiquetaFiltro">Buscar</label>
+            <input
+              id="buscador"
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="vitisjunior, pañales, pañitoshumedos, citratodemagnesio"
+              className="inputBuscar"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="cuadriculaProductos">
+        {lista.map((p, idx) => {
+          const key = (typeof p.id === "string" && p.id.length > 0) ? p.id : ("prod-" + idx);
+          return <ProductoTarjeta key={key} p={p} />
+        })}
+      </div>
+
+      {lista.length === 0 && (
+        <div className="productosVacio">No se encontraron productos.</div>
+      )}
+    </section>
   );
 }
