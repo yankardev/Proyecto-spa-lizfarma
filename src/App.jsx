@@ -4,6 +4,7 @@ import Productos from "./components/Productos";
 import ProductosDestacados from "./components/ProductosDestacados";
 import Banner from "./components/Banner";
 import Footer from "./components/Footer";
+import Nosotros from "./components/Nosotros";
 
 function App() {
   return (
@@ -12,7 +13,7 @@ function App() {
       <Routes>
         {/* Página de inicio */}
         <Route
-          path="/inicio"
+          path="/"
           element={
             <>
               <Banner />
@@ -22,10 +23,10 @@ function App() {
         />
 
         {/* Página de productos */}
-        <Route
-          path="/productos"
-          element={<Productos />}
-        />
+        <Route path="/productos" element={<Productos />} />
+
+        {/* Página de nosotros */}
+        <Route path="/nosotros" element={<Nosotros />} />
       </Routes>
       <Footer />
     </Router>
@@ -33,3 +34,4 @@ function App() {
 }
 
 export default App;
+

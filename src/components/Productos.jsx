@@ -69,7 +69,7 @@ export default function Productos() {
               id="buscador"
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="vitisjunior, pañales, pañitoshumedos, citratodemagnesio"
+              placeholder="Busca tu producto"
               className="inputBuscar"
             />
           </div>

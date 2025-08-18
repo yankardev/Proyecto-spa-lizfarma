@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import logo from "../assets/logo-lizfarma.png";
 
 const Elementos = [
-  { texto: "Inicio", url: "/inicio" },
+  { texto: "Inicio", url: "/" },
   { texto: "Productos", url: "/productos" },
   { texto: "Nosotros", url: "/nosotros" },
   { texto: "Ubicación", url: "/ubicacion" },
