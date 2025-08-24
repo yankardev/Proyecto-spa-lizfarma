@@ -1,26 +1,31 @@
-import { useState } from "react";
-import { ventanaproductos as DATA } from "../data/ventanaproductos";
-import "../styles/productos.css";
+import { useState, useMemo } from "react"
+import { ventanaproductos as DATA } from "../data/ventanaproductos"
+import "../styles/productos.css"
 
+function stringOrEmpty(val) {
+  return (typeof val === "string") ? val : "";
+}
 
-function stringOrEmpty(val) { return (typeof val === "string") ? val : ""; }
-function numberOrZero(val) { return (typeof val === "number" && !Number.isNaN(val)) ? val : 0; }
 function srcOrPlaceholder(val) {
   return (typeof val === "string" && val.length > 0)
     ? val
     : "https://via.placeholder.com/400x300?text=Producto";
 }
 
-function ProductoTarjeta({ p }) {
-  const stock = numberOrZero(p.stock);
-  const disponible = stock > 0;
+function numberOrZero(val) {
+  const n = (typeof val === "number") ? val : parseFloat(val)
+  return Number.isFinite(n) ? n : 0
+}
+function ProductoTarjeta({ p, onAdd }) {
+  const stock = numberOrZero(p.stock)
+  const disponible = stock > 0
 
-  const src = srcOrPlaceholder(p.imagen);
-  const precio = numberOrZero(p.precio);
-  const nombre = stringOrEmpty(p.nombre);
-  const categoria = stringOrEmpty(p.categoria);
+  const src = srcOrPlaceholder(p.imagen)
+  const precio = numberOrZero(p.precio)
+  const nombre = stringOrEmpty(p.nombre)
+  const categoria = stringOrEmpty(p.categoria)
 
-  const badgeClass = disponible ? "prodBadge prodBadgeOk" : "prodBadge prodBadgeBad";
+  const badgeClass = disponible ? "prodBadge prodBadgeOk" : "prodBadge prodBadgeBad"
 
   return (
     <article className="producto">
@@ -36,6 +41,7 @@ function ProductoTarjeta({ p }) {
             {disponible ? "Stock: " + stock : "Sin stock"}
           </span>
         </div>
+        <button type="button" className="btnAgregar" disabled={!disponible} onClick={() => onAdd && onAdd(p)} aria-label={`Agregar ${nombre} al carrito`} title={disponible ? "Agregar al carrito" : "Sin stock"}>Agregar al carrito</button>
       </div>
     </article>
   )
@@ -43,14 +49,20 @@ function ProductoTarjeta({ p }) {
 
 export default function Productos() {
   const [q, setQ] = useState("");
-  const qLower = q.toLowerCase();
+  const [carrito, setCarrito] = useState([])
 
-  const lista = DATA.filter((p) => {
-    const nombre = stringOrEmpty(p.nombre).toLowerCase();
-    const categoria = stringOrEmpty(p.categoria).toLowerCase();
+  const lista = useMemo(() => {
+    const qLower = q.toLowerCase()
+    return DATA.filter((p) => {
+      const nombre = stringOrEmpty(p.nombre).toLowerCase()
+      const categoria = stringOrEmpty(p.categoria).toLowerCase()
+      return nombre.includes(qLower) || categoria.includes(qLower)
+    })
+  }, [q])
 
-    return nombre.includes(qLower) || categoria.includes(qLower);
-  });
+  const handleAdd = (prod) => {
+    setCarrito((prev) => [...prev, prod])
+  }
 
   return (
     <section className="productosPagina">
@@ -66,20 +78,18 @@ export default function Productos() {
           <div className="campoFiltro">
             <label htmlFor="buscador" className="etiquetaFiltro">Buscar</label>
             <input
-              id="buscador"
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              placeholder="Busca tu producto"
-              className="inputBuscar"
+              id="buscador" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Busca tu producto" className="inputBuscar"
             />
+          </div>
+          <div className="carritoBadge" role="status" aria-live="polite" title="Productos en el carrito">
+            🛒 <strong>{carrito.length}</strong>
           </div>
         </div>
       </div>
-
       <div className="cuadriculaProductos">
         {lista.map((p, idx) => {
           const key = (typeof p.id === "string" && p.id.length > 0) ? p.id : ("prod-" + idx);
-          return <ProductoTarjeta key={key} p={p} />
+          return <ProductoTarjeta key={key} p={p} onAdd={handleAdd} />
         })}
       </div>
 
@@ -87,5 +97,5 @@ export default function Productos() {
         <div className="productosVacio">No se encontraron productos.</div>
       )}
     </section>
-  );
+  )
 }

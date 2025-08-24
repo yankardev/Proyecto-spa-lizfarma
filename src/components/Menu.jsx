@@ -1,67 +1,98 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import logo from "../assets/logo-lizfarma.png";
 
-const Elementos = [
+const menuItems = [
   { texto: "Inicio", url: "/" },
   { texto: "Productos", url: "/productos" },
   { texto: "Nosotros", url: "/nosotros" },
   { texto: "Ubicación", url: "/ubicacion" },
 ];
 
-function MenuItem({ texto, enlace }) {
+// Ítem de menú reutilizable
+function MenuItem({ texto, enlace, onClick }) {
   return (
-    <Link 
-      to={enlace} 
-      className="block px-4 py-1 text-lg text-white hover:text-teal-600 font-bold hover:bg-white rounded-bl-2xl"
-    >
-      {texto}
-    </Link>
+    <li>
+      <NavLink to={enlace} onClick={onClick} className={({ isActive }) =>
+          ["block px-4 py-2 text-lg font-bold rounded-bl-2xl transition",
+            "text-white hover:text-teal-600 hover:bg-white",
+            isActive ? "text-amber-300  bg-teal-400" : "",
+          ].join(" ")
+        } aria-label={texto}>
+        {texto}
+      </NavLink>
+    </li>
   );
 }
 
 export default function Menu() {
   const [menuAbierto, setMenuAbierto] = useState(false);
 
+  // Hook del router: nos da la ruta actual (pathname)
+  const location = useLocation();
+  // Efecto: cada vez que cambia la ruta, cerramos el menú móvil (mejor UX)
   useEffect(() => {
-    console.log(menuAbierto ? "Menú abierto" : "Menú cerrado");
-  }, [menuAbierto]);
+    setMenuAbierto(false);
+  }, [location.pathname]);
+
+  // Alterna el estado del menú móvil (true/false)
+  const toggleMenu = () => setMenuAbierto((v) => !v);
 
   return (
-    <nav className="bg-teal-400 shadow-md">
+    // <nav> semántico + etiqueta ARIA
+    <nav className="bg-teal-400 shadow-md" aria-label="Navegación principal">
       <div className="flex items-center justify-between px-6 py-3">
-        {/* Logo + Nombre */}
+        {/* Logo + Marca */}
         <div className="flex items-center gap-3">
-          <img src={logo} alt="LizFarma Logo" className="h-18 w-auto cursor-pointer"/>
+          <img
+            src={logo}
+            alt="Logo de LizFarma"
+            className="h-16 w-auto cursor-pointer" // Nota: Tailwind no tiene h-18 por defecto
+            decoding="async"
+          />
           <span className="text-white font-bold text-2xl hover:text-amber-300 cursor-pointer">
             LizFarma
           </span>
         </div>
 
-        {/* Botón móvil */}
-        <button 
-          className="bg-white text-teal-400 font-bold px-3 py-1 border border-white rounded shadow-md hover:bg-teal-400 hover:text-white md:hidden transition"
-          onClick={() => setMenuAbierto(!menuAbierto)}
+        {/* Botón hamburguesa: solo visible en móvil (md:hidden) */}
+        <button
+          type="button"
+          className="md:hidden bg-white text-teal-600 font-bold px-3 py-1 border border-white rounded shadow-md hover:bg-teal-500 hover:text-white transition"
+          aria-expanded={menuAbierto}
+          aria-controls="menu-movil"
+          onClick={toggleMenu}
         >
-          {menuAbierto ? "Cerrar" : "Menu"}
+          {menuAbierto ? "Cerrar" : "Menú"}
         </button>
 
-        {/* Menú horizontal (desktop) */}
-        <div className="hidden md:flex space-x-5">
-          {Elementos.map((elemento, index) => (
-            <MenuItem key={index} texto={elemento.texto} enlace={elemento.url} />
+        {/* Navegación en desktop: visible desde md en adelante */}
+        <ul className="hidden md:flex gap-5">
+          {menuItems.map((item) => (
+            <MenuItem key={item.texto} texto={item.texto} enlace={item.url} />
           ))}
-        </div>
+        </ul>
       </div>
 
-      {/* Menú vertical (móvil) */}
-      {menuAbierto && (
-        <div className="md:hidden flex flex-col px-6 bg-teal-400 shadow-inner text-center font-bold animate-slideDown">
-          {Elementos.map((elemento, index) => (
-            <MenuItem key={index} texto={elemento.texto} enlace={elemento.url} />
+      {/* Navegación en móvil: render condicional según el estado */}
+      <div
+        id="menu-movil"
+        className={`md:hidden px-6 bg-teal-400 shadow-inner text-center font-bold ${
+          menuAbierto ? "block" : "hidden"
+        }`}
+      >
+        <ul className="flex flex-col py-2">
+          {menuItems.map((item) => (
+            <MenuItem
+              key={item.texto}
+              texto={item.texto}
+              enlace={item.url}
+              // Al hacer click en un enlace móvil, cerramos el menú
+              onClick={() => setMenuAbierto(false)}
+            />
           ))}
-        </div>
-      )}
+        </ul>
+      </div>
     </nav>
   );
 }
