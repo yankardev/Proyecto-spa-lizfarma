@@ -6,11 +6,10 @@ function stringOrEmpty(val) {
   return (typeof val === "string") ? val : "";
 }
 
+
 function srcOrPlaceholder(val) {
   return (typeof val === "string" && val.length > 0)
-    ? val
-    : "https://via.placeholder.com/400x300?text=Producto";
-}
+    ? val: "https://via.placeholder.com/400x300?text=Producto";}
 
 function numberOrZero(val) {
   const n = (typeof val === "number") ? val : parseFloat(val)
@@ -73,7 +72,7 @@ export default function Productos() {
         </div>
       </div>
 
-      <div className="productosConteiner">
+      <div className="productosContainer">
         <div className="productosFiltros">
           <div className="campoFiltro">
             <label htmlFor="buscador" className="etiquetaFiltro">Buscar</label>

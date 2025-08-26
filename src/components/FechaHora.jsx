@@ -13,7 +13,7 @@ export default function FechaHora() {
   const horaFormat = ahora.toLocaleTimeString("es-PE", { hour12: false, hour: "2-digit", minute: "2-digit", second: "2-digit",});
 
   return (
-    <div className="w-full bg-teal-700 text-white shadow">
+    <div className="w-full bg-cyan-600 text-white shadow">
       <div className="w-full flex items-center justify-between py-2 px-4">
           <div className="text-xs sm:text-sm opacity-95">
             Fecha: {fecha}
